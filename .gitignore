@@ -1,5 +1,6 @@
-.mp3
-.pickle
-.wav
-.pt
-— копия.py
+*.mp3
+*.pickle
+*.wav
+*.pt
+*— копия.py
+/__pycache__
