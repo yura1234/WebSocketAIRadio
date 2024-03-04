@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from typing import List
 
 @dataclass
 class Song:
@@ -10,4 +11,4 @@ class Song:
     duration: tuple
     # durationText: str
     summary: str
-    byteArray : list()
+    byteArray : List
