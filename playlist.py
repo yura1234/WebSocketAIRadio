@@ -10,6 +10,8 @@ from pydub.utils import mediainfo
 from pydub.utils import make_chunks
 from textToSong import TextToSong
 import asyncio
+from typing import Awaitable, Any, Callable
+
 
 class Playlist:
 
@@ -23,18 +25,18 @@ class Playlist:
         if bitrate:
             self.pathToLow = self.path[:self.path.rfind('\\')] + '\\' + f'{bitrate}K'
         else:
-            self.pathToLow = None
+            self.pathToLow = str()
 
         self.bitrate = bitrate
         self.listFiles = self.__readFilesFromDir()
-        self.listSongs = list()
+        self.listSongs = list[str]
     
 
-    def __readFilesFromDir(self) -> None:
+    def __readFilesFromDir(self) -> list[str]:
         return [f for f in os.listdir(self.path) if f.endswith('.mp3')]
     
 
-    def __audioDuration(self, length: int):
+    def __audioDuration(self, length: int) -> tuple[int, int, int]:
         hours = length // 3600  # часы
         length %= 3600
         mins = length // 60  # минуты
@@ -44,7 +46,7 @@ class Playlist:
         return int(hours), int(mins), seconds
     
 
-    def __makeBytesFromChunks(self, chunks: list) -> list[bytes]:
+    def __makeBytesFromChunks(self, chunks: list) -> list[str]:
         listBytes = list()
 
         for chunk in chunks:
@@ -56,7 +58,7 @@ class Playlist:
     
 
     def __background(f):
-        def wrapped(*args, **kwargs):
+        def wrapped(*args: tuple, **kwargs: dict[str, dict[str, Any]]) -> Awaitable:
             return asyncio.get_event_loop().run_in_executor(None, f, *args, **kwargs)
 
         return wrapped

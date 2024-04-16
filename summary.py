@@ -2,47 +2,42 @@ import requests
 import json
 import ast
 from bs4 import BeautifulSoup as bs
-from deep_translator import GoogleTranslator
+# from deep_translator import GoogleTranslator
 
 class Summary:
     
     
     def __init__(self, artistName: str) -> None:
         self.summaryURL = 'https://api.aicloud.sbercloud.ru/public/v2/summarizator/predict'
-        self.searchURL = f'https://www.last.fm/music/{artistName}/+wiki'
+        self.searchURL = f'https://www.last.fm/ru/music/{artistName}/+wiki'
 
-        self.__findOk = False
 
-        self.__page = bs(requests.get(self.searchURL).text)
+    def loadDescription(self) -> str:
+        page = bs(requests.get(self.searchURL).text)
 
-        if 'We don\'t have a wiki for this artist.' not in self.__page.text: 
-            self.__findOk = True
-            self.__sourceText = self.__page.find("div", class_="wiki-content").text
-            self.__translator = GoogleTranslator(source='en', target='ru')
+        if 'У нас пока нет вики-статьи об этом исполнителе' not in page.text:
+            return self.__makeQuotes(page.find("div", class_="wiki-content").text[:1000])
 
-            self.tranlatedText = self.__makeQuotes(self.__translator.translate(self.__sourceText))
-    
+        return ''
+
 
     def __makeQuotes(self, text: str) -> str:
         return '\"' + text + '\"'
-        # if text[0] != '\"':
-        #     text[0] = '\"'
-        # if text[len(text) - 1] != '\"':
-        #     text[len(text) - 1] = '\"'
 
 
     def makeSummary(self) -> str:
-        if self.__findOk == False:
+        desc = self.loadDescription()
+
+        if not desc:
             return ''
 
         headers = {
-            'accept': 'application/json',
-            'Content-Type': 'application/json',
+            "accept": "application/json",
+            "Content-Type": "application/json",
         }
         data = {
             "instances": [{
-                # "text" : self.tranlatedText[:(int)(len(self.tranlatedText) / 3)] + '\"',
-                "text" : self.tranlatedText,
+                "text" : desc,
                 "num_beams": 10,
                 "num_return_sequences": 20,
                 "length_penalty": 2.0
