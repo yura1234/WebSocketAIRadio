@@ -28,7 +28,7 @@ class TextToSong:
         
         print(audio_paths)
 
-    def convertToMP3(self):
+    def convertToMP3(self) -> None:
         # print(os.getcwd())
         
         AudioSegment.from_wav(os.path.join(os.getcwd(), 'test.wav')).\
