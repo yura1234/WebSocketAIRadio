@@ -8,12 +8,13 @@ class Summary:
     
     
     def __init__(self, artistName: str) -> None:
+        artistName = artistName.replace(' ', '%20')
         self.summaryURL = 'https://api.aicloud.sbercloud.ru/public/v2/summarizator/predict'
         self.searchURL = f'https://www.last.fm/ru/music/{artistName}/+wiki'
 
 
     def loadDescription(self) -> str:
-        page = bs(requests.get(self.searchURL).text)
+        page = bs(requests.get(self.searchURL).text, 'html.parser')
 
         if 'У нас пока нет вики-статьи об этом исполнителе' not in page.text:
             return self.__makeQuotes(page.find("div", class_="wiki-content").text[:1000])

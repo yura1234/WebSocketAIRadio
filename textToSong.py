@@ -1,5 +1,6 @@
 import os
 import torch
+import torchaudio
 from pydub import AudioSegment
 
 class TextToSong:
@@ -24,16 +25,13 @@ class TextToSong:
                                     sample_rate=self.sample_rate,
                                     put_accent=True,
                                     put_yo=True)
-        self.convertToMP3()
         
-        print(audio_paths)
+        # audio = self.model.apply_tts(text=text,
+        #                 speaker=self.speaker,
+        #                 sample_rate=self.sample_rate)
+
+        self.convertToMP3()
 
     def convertToMP3(self) -> None:
-        # print(os.getcwd())
-        
         AudioSegment.from_wav(os.path.join(os.getcwd(), 'test.wav')).\
             export(os.path.join(os.getcwd(), 'speech_file.mp3'), format="mp3")
-
-# example_text = 'Всем привет с вами диджей Три до гнайт!'
-
-

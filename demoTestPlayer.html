@@ -27,6 +27,7 @@
         });
      
         const websocket = new WebSocket(`ws://${WS_SERVER}/`);
+        
      
         // const ping = (msg) => {
         //     msg = msg || 'ping';
@@ -74,36 +75,28 @@
 
         function addDataToBuff(data)
         {
-            // console.log(data);
-            if (!goinOn) return;
-            
+            var json = JSON.parse(data.data)
+            // console.log(json);
+            console.log(data);
 
-            const bytes = window.atob(data.data);
+            // console.log(data.data['bytes']);
+            if (!goinOn) return;
+
+            // const bytes = window.atob(data.data['bytes']);
+            const bytes = window.atob(json['bytes']);
             const arrayBuffer = new window.ArrayBuffer(bytes.length);
             const bufferView = new window.Uint8Array(arrayBuffer);
 
-            console.log('get', bytes.length, 'bytes', dateFormatter.format(Date.now()));
+            // console.log('get', bytes.length, 'bytes', dateFormatter.format(Date.now()));
 
             for (let i = 0; i < bytes.length; i++) {
                 bufferView[i] = bytes.charCodeAt(i);
             }
 
             sourceBuffer.appendBuffer(bufferView);
-            // countChunks++;
-
-            // if (countChunks === 5)
-            // {
-            //     document.getElementById('audio').play();
-            // }
         }
 
-        // function wait(ms){
-        //     var start = new Date().getTime();
-        //     var end = start;
-        //     while(end < start + ms) {
-        //         end = new Date().getTime();
-        //     }
-        // }
+
 
         function testPlay()
         {
@@ -131,8 +124,9 @@
             // websocket.close();
 
             goinOn = false;
+            sourceBuffer.remove(0, sourceBuffer.buffered.length);
 
-            countChunks = 0;
+            // countChunks = 0;
             document.getElementById('audio').pause();
             
         }
