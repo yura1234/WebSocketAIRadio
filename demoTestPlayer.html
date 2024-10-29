@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Andan FM</title>
+    <link rel="stylesheet" href="style.css">
     <script>
         WS_SERVER = 'localhost:5000'
         
@@ -17,29 +18,15 @@
         document.addEventListener("DOMContentLoaded", function(){
             audio = document.getElementById('audio');
             audio.src = URL.createObjectURL(mediaSource);
-            // console.log(audio);
         });
 
-        dateFormatter = new Intl.DateTimeFormat('ru-RU', {
-            hour: "numeric",
-            minute: "numeric",
-            second: "numeric"
-        });
+        // dateFormatter = new Intl.DateTimeFormat('ru-RU', {
+        //     hour: "numeric",
+        //     minute: "numeric",
+        //     second: "numeric"
+        // });
      
         const websocket = new WebSocket(`ws://${WS_SERVER}/`);
-        
-     
-        // const ping = (msg) => {
-        //     msg = msg || 'ping';
-        //     console.log("Send message", msg);
-        //     websocket.send(msg);
-        // }
-
-        // websocket.addEventListener('message', ({data}) => {
-        //     console.log("Recv message", data, dateFormatter.format(Date.now()));
-        // })
-        
-
 
         mediaSource.addEventListener('sourceopen', function() {
             console.log('Source Open!');
@@ -48,36 +35,13 @@
             
             
             websocket.addEventListener('message', addDataToBuff);
-            
-            
-            //websocket.addEventListener('message', addDataToBuff, {data});
-            // websocket.addEventListener('message', ({data}) => {
-            //     // jsonData = JSON.parse(data);
-            //     // console.log("Recv message", data, dateFormatter.format(Date.now()));
-            //     // console.log(jsonData['audioData']);
-            //     // console.log('Data recieved ok!')
-
-            //     // data = data.slice(1, data.length - 1);
-
-            //     const bytes = window.atob(data);
-            //     const arrayBuffer = new window.ArrayBuffer(bytes.length);
-            //     const bufferView = new window.Uint8Array(arrayBuffer);
-
-            //     console.log('get ', bytes.length, 'bytes', dateFormatter.format(Date.now()));
-
-            //     for (let i = 0; i < bytes.length; i++) {
-            //         bufferView[i] = bytes.charCodeAt(i);
-            //     }
-                    
-            //     sourceBuffer.appendBuffer(bufferView);
-            // })
         })
 
         function addDataToBuff(data)
         {
             var json = JSON.parse(data.data)
-            // console.log(json);
-            console.log(data);
+            console.log(json);
+            // console.log(data);
 
             // console.log(data.data['bytes']);
             if (!goinOn) return;
@@ -98,66 +62,29 @@
 
 
 
-        function testPlay()
+        function songPlay()
         {
-            // smediaSource.sourceBuffer.addSourceBuffer(mime);
-            // mediaSource.addEventListener('sourceopen', function() {
-            //     console.log('Source Open!');
-            //     sourceBuffer = this.addSourceBuffer(mime);
-            // })
-            // if (websocket.readyState == WebSocket.CLOSED)
-            //     websocket.open();
-
             goinOn = true;
-
-            // websocket.addEventListener('message', addDataToBuff);
-            // wait(3000);
-
             document.getElementById('audio').play();
         }
 
-        function testPause()
+        function songPause()
         {
-            // websocket.removeEventListener('');
-            // websocket.removeEventListener('message', addDataToBuff);
-            // mediaSource.sourceBuffer = null;
-            // websocket.close();
-
             goinOn = false;
-            sourceBuffer.remove(0, sourceBuffer.buffered.length);
-
-            // countChunks = 0;
             document.getElementById('audio').pause();
-            
         }
-
-        // function onPlay()
-        // {
-        //     goinOn = true;
-
-
-        // }
-        // websocket.addEventListener('open', () => ping());
-
-        // function playTest()
-        // {
-        //     var snd = new Audio('data:audio/x-mp3;base64, ' + jsonData['audioData']);    
-        //     snd.play();
-        // }
 
     </script>
 </head>
 <body>
-    <!-- <p>Open the developer console and run the <code>ping()</code> function</p> -->
-    <!-- <input id="clickMe" type="button" value="PLAY" onclick="playRadio()" /> -->
-    
-    <audio id="audio"></audio>
-    <div>
-        <!-- <button onclick="document.getElementById('audio').play()">Play</button> -->
-        <button onclick="testPlay()">Play</button>
-        <!-- <button onclick="document.getElementById('audio').pause()">Pause</button> -->
-        <button onclick="testPause()">Pause</button>
-        <button onclick="document.getElementById('audio').muted=!document.getElementById('audio').muted">Mute/ Unmute</button>
+    <div class="center">
+        <h1 class="site_name">ANDAN FM</h1>
+        <audio id="audio"></audio>
+        <div>
+            <button class="btn" onclick="songPlay()">Play</button>
+            <button class="btn" onclick="songPause()">Pause</button>
+            <button class="btn" onclick="document.getElementById('audio').muted=!document.getElementById('audio').muted">Mute/ Unmute</button>
+        </div>
     </div>
 </body>
 </html>

@@ -1,8 +1,9 @@
 import requests
-import json
-import ast
 from bs4 import BeautifulSoup as bs
+import ast
 # from deep_translator import GoogleTranslator
+import json
+
 
 class Summary:
     
@@ -11,13 +12,18 @@ class Summary:
         artistName = artistName.replace(' ', '%20')
         self.summaryURL = 'https://api.aicloud.sbercloud.ru/public/v2/summarizator/predict'
         self.searchURL = f'https://www.last.fm/ru/music/{artistName}/+wiki'
+        self.description = ''
 
 
     def loadDescription(self) -> str:
-        page = bs(requests.get(self.searchURL).text, 'html.parser')
+        print(f'GET {self.searchURL}')
+        response = requests.get(self.searchURL)
 
-        if 'У нас пока нет вики-статьи об этом исполнителе' not in page.text:
-            return self.__makeQuotes(page.find("div", class_="wiki-content").text[:1000])
+        if response.status_code == 200:
+            page = bs(response.text, 'html.parser')
+
+            if 'У нас пока нет вики-статьи об этом исполнителе' not in page.text:
+                return self.__makeQuotes(page.find("div", class_="wiki-content").text[:1000])
 
         return ''
 
@@ -27,9 +33,10 @@ class Summary:
 
 
     def makeSummary(self) -> str:
-        desc = self.loadDescription()
+        if not self.description:
+            self.description = self.loadDescription()
 
-        if not desc:
+        if not self.description: 
             return ''
 
         headers = {
@@ -37,18 +44,23 @@ class Summary:
             "Content-Type": "application/json",
         }
         data = {
-            "instances": [{
-                "text" : desc,
-                "num_beams": 10,
-                "num_return_sequences": 20,
-                "length_penalty": 2.0
+            'instances': [{
+                'text' : self.description,
+                'num_beams': 10,
+                'num_return_sequences': 20,
+                'length_penalty': 2.0
                 }]
         }
 
-        jsonData = json.dumps(ast.literal_eval(str(data)))
-        response = requests.post(self.summaryURL, headers=headers, data=str(jsonData)).json()
+        
+        data = json.dumps(ast.literal_eval(str(data)))
+        print(f'POST {self.summaryURL}')
 
-        if response['comment'] == 'Ok!':
-            return response['prediction_best']['bertscore']
+        response = requests.post(self.summaryURL, headers=headers, data=str(data))
+
+        if response.status_code == 200:
+            response = response.json()
+            if response['comment'] == 'Ok!':
+                return response['prediction_best']['bertscore']
         else:
             return ''

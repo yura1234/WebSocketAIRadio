@@ -7,3 +7,5 @@
 /.mypy_cache
 setup.cfg
 *.log
+artists.json
+artists_summary.json

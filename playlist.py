@@ -4,13 +4,10 @@ from mutagen.id3 import ID3
 import os
 import io
 from song import Song
-from summary import Summary
 from pydub import AudioSegment
 # from pydub.utils import mediainfo
 from pydub.utils import make_chunks
 from textToSong import TextToSong
-# import asyncio
-# from typing import Awaitable, Any, Callable
 
 
 class Playlist:
@@ -24,11 +21,11 @@ class Playlist:
 
         self.listFiles = self.__readFilesFromDir()
         self.listSongs = list()
-    
+
 
     def __readFilesFromDir(self) -> list[str]:
         return [f for f in os.listdir(self.path) if f.endswith('.mp3')]
-    
+
 
     def __audioDuration(self, length: int) -> tuple[int, int, int]:
         hours = length // 3600  # часы
@@ -36,9 +33,9 @@ class Playlist:
         mins = length // 60  # минуты
         length %= 60
         seconds = length  # секунды
-  
+
         return int(hours), int(mins), seconds
-    
+
 
     def __makeBytesFromChunks(self, chunks: list) -> list[str]:
         listBytes = list()
@@ -49,13 +46,12 @@ class Playlist:
             listBytes.append(str(b64encode(buff.getvalue()))[2:-1])
 
         return listBytes
-    
 
-    def readSongInfo(self) -> None:
-        trackSeps = [',', 'feat.', '&', '\\', 'и']
+
+    def readSongInfo(self, summaryList: dict[str, str]) -> None:
         audioTags = ['TPE1', 'TIT2']
 
-        for songFilePath in self.listFiles[:2]:
+        for songFilePath in self.listFiles:
             fullPath = os.path.join(self.path, songFilePath)
 
             song = MP3(fullPath)
@@ -68,11 +64,14 @@ class Playlist:
                 artistName = id3info["TPE1"].text[0]
             else:
                 continue
-            
+
             if audioTags[1] in trackTags:
                 trackName = id3info["TIT2"].text[0]
-    
+
             summary = ''
+
+            if summaryList[artistName]:
+                summary = summaryList[artistName]
 
             audioFile = AudioSegment.from_file(fullPath, "mp3")
 
@@ -81,18 +80,6 @@ class Playlist:
 
             songLength = self.__audioDuration(song.info.length)
 
-            for sep in trackSeps:
-                if sep in artistName:
-                    artists = artistName.split(sep)
-                    for artist in artists:
-                        summary += Summary(artist.strip()).makeSummary()
-                    break
-
-            if summary == '':
-                summary = Summary(artistName).makeSummary()
-
-            print(f'{artistName} - {summary}\n')
-
             if summary != '':
                 makeVoice = TextToSong()
                 makeVoice.textToSong(summary)
@@ -100,7 +87,7 @@ class Playlist:
                 summaryWavPath = os.path.join(os.getcwd(), 'speech_file.mp3')
                 audioWavFile = AudioSegment.from_file(summaryWavPath, "mp3")
                 chunksAboutArray = make_chunks(audioWavFile, chunkMs)
-                
+
                 listBytes = self.__makeBytesFromChunks(chunksAboutArray)
                 self.listSongs.append(Song(
                         name = 'About Artist',

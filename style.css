@@ -1,0 +1,12 @@
+.center {
+    text-align: center;
+  }
+
+.site_name {
+  font-size: 50px;
+}
+
+.btn {
+  height: 100px;
+  width: 200px;
+}
